@@ -1,0 +1,7 @@
+'#' : Tường đá
+' ' : Ô trống
+'$' : Thùng
+'.' : Đích
+'@' : Người chơi
+'*' : Thùng trên ô đích 
+'+' : Người chơi trên đích
