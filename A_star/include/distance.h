@@ -4,15 +4,17 @@
 #include "board.h"
 #include <vector>
 
-// 0: Trái, 1: Trên, 2: Phải, 3: Dưới 
 const int DIR_LEFT  = 0;
 const int DIR_UP    = 1;
 const int DIR_RIGHT = 2;
 const int DIR_DOWN  = 3;
 
-// Cấu trúc DistanceMap tương đương lưu kết quả tính toán khoảng cách
+// Lưu khoảng cách di chuyển giữa các ô trong map
+// Các ô đích là các ô có thể di chuyển được tới mà không đẩy thùng
 struct DistanceMap {
-    std::vector<int> distances; // distances[p] = số bước, nếu bằng -1 nghĩa là không thể tới (None)
+    // * distances[p] = số bước tới ô có id là p
+    // * distances[p] = -1: ô p ko tới được
+    std::vector<int> distances; 
     int width;
     int height;
 
@@ -34,14 +36,16 @@ struct DistanceMap {
     }
 };
 
-// Tính toán khoảng cách từ ô start đến tất cả các ô người chơi có thể chạm tới
+// Tính toán khoảng cách từ ô start tới tất cả các ô có thể đi được
 DistanceMap calculateDistances(const Board& board, int start_p, const std::vector<int>& boxes);
 
 // Kiểm tra xem người chơi có thể đi bộ từ ô 'from_p' đến ô 'to_p' không
 bool canReach(const Board& board, int from_p, int to_p, const std::vector<int>& boxes);
 
-// Tìm đường đi chi tiết từ 'from_p' đến 'to_p' (Trả về danh sách các mã hướng 0, 1, 2, 3)
+// * Tìm đường đi chi tiết từ 'from_p' đến 'to_p'
+// trả về vector các bước dạng 0, 1, 2, 3.. (DIR_LEFT, DIR_UP, ..)
 // Nếu không tìm thấy lộ trình, trả về vector rỗng.
 std::vector<int> getPath(const Board& board, int from_p, int to_p, const std::vector<int>& boxes);
+std::vector<int> getPath(DistanceMap &dmap, int to_p);
 
 #endif

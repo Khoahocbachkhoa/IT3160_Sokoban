@@ -1,3 +1,8 @@
+Định dạng đầu vào:
+    Dòng 1 : (r, c) là số hàng và cột của hình chữ nhật bao kín bản đồ
+    r dòng tiếp theo: Các hàng là một chuỗi gồm các ký tự như bên dưới
+
+Các ký tự:
 '#' : Tường đá
 ' ' : Ô trống
 '$' : Thùng

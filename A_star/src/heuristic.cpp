@@ -5,7 +5,7 @@
 
 using namespace std;
 
-// Tính khoảng cách ghép cặp tối thiểu giữa thùng và đích (Greedy)
+// Tính khoảng cách ghép cặp tối thiểu giữa thùng và đích
 int hungarianLowerBound(const Board& board, const vector<int>& boxes) {
     size_t n = boxes.size();
     if (n == 0) {

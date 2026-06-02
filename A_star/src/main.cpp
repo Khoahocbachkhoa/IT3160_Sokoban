@@ -20,21 +20,20 @@ int main() {
         return 1;
     }
 
-    // Đặt giới hạn thời gian
-    long long time_limit = 1000000000;
+    // Giới hạn thời gian tìm kiếm
+    long long time_limit = 120000;
 
     SolveResult result = solveSystem(board, start_state, time_limit);
 
     if (result.solved) {
         cout << "Tìm ra lời giải!" << endl;
         cout << "Thời gian chạy    : " << result.time_ms << " ms" << endl;
-        cout << "Số lần đẩy thùng  : " << result.pushes <<  endl;
-        cout << "Số bước di chuyển : " << result.moves  <<  endl;
         cout << "Số node duyệt     : " << result.nodes_searched << " trạng thái" << endl;
         cout << "Chuỗi di chuyển   : " << result.solution << endl;
     } else {
         cout << "Không tìm thấy lời giải!" << endl;
         cout << "Thời gian chạy : " << result.time_ms << " ms" << endl;
+        cout << "Số node duyệt     : " << result.nodes_searched << " trạng thái" << endl;
         cout << "Lý do          : " << result.fail_reason << endl;
     }
 

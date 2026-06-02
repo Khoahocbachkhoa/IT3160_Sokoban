@@ -12,8 +12,6 @@
 struct SolveResult {
     bool solved;
     long long time_ms; // Thời gian chạy
-    int pushes;        // Số lần đẩy thùng
-    int moves;         // Số bước di chuyển
     long long nodes_searched;   // Số node đã duyệt
     std::string solution;       // Các bước để đi tới lời giải
     std::string fail_reason;    // Lý do thất bại
