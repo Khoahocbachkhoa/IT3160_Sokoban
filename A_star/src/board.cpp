@@ -1,3 +1,4 @@
+// board.cpp
 #include <iostream>
 #include "../include/board.h"
 using namespace std;
@@ -45,7 +46,8 @@ void readBoard(Board& board, State& start) {
     start = State();
 
     cin >> board.rows >> board.cols;
-    cin.ignore();
+    std::string header_line;
+    std::getline(cin, header_line); // consume the rest of the header line
 
     int n = board.rows * board.cols;
 

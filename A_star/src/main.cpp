@@ -1,3 +1,4 @@
+// main.cpp
 #include <iostream>
 #include <string>
 
@@ -5,8 +6,6 @@
 #include "../include/search.h"
 
 using namespace std;
-
-#define NOLIMIT __LONG_LONG_MAX__
 
 int main() {
     ios_base::sync_with_stdio(false);
@@ -22,7 +21,10 @@ int main() {
         return 1;
     }
 
-    SolveResult result = solveSystem(board, start_state, NOLIMIT);
+    // Đặt giới hạn thời gian
+    long long time_limit = 1000000000;
+
+    SolveResult result = solveSystem(board, start_state, time_limit);
 
     if (result.solved) {
         cout << "Tìm ra lời giải!" << endl;
