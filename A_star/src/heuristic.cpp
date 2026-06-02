@@ -79,15 +79,15 @@ int enhancedHeuristic(const Board& board, const vector<int>& boxes) {
 
             int next_p = board.id(next_r, next_c);
 
-            // Nếu ô tiếp là tường hoặc bị kẹt bởi thùng khác
-            if (board.isWall(next_p) || binary_search(boxes.begin(), boxes.end(), next_p)) {
+            // Nếu ô tiếp là tường
+            if (board.isWall(next_p)) {
                 blocked++;
             }
         }
 
         // Cộng thêm điểm phạt nếu thùng bị kẹt
         if (blocked >= 3) {
-            penalty += 10;
+            penalty += 15;
         } else if (blocked == 2) {
             penalty += 2;
         }

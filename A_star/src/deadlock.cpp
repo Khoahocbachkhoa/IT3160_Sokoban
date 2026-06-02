@@ -58,124 +58,71 @@ bool DeadlockDetector::isEdgeDeadlock(const Board& board, int p) const {
     int r = board.row(p);
     int c = board.col(p);
 
-    // 1. Kiểm tra Cạnh Chết Ngang (Bức tường chạy dọc phía trên hoặc phía dưới)
+    // 1. Kiểm tra Cạnh Chết Ngang (tường ở trên hoặc dưới)
     bool up_wall   = !board.valid(r - 1, c) || board.isWall(board.id(r - 1, c));
     bool down_wall = !board.valid(r + 1, c) || board.isWall(board.id(r + 1, c));
 
     if (up_wall || down_wall) {
         bool has_goal_on_edge = false;
+        bool has_exit = false;
 
-        // Đi sang bên trái dọc theo cạnh
-        int check_c = c;
-        while (true) {
-            check_c--;
-
-            // Gặp tường chặn
-            if (!board.valid(r, check_c) || board.isWall(board.id(r, check_c))) {
-                break;
-            }
-            
-            int check_p = board.id(r, check_c);
-            bool check_up   = !board.valid(r - 1, check_c) || board.isWall(board.id(r - 1, check_c));
-            bool check_down = !board.valid(r + 1, check_c) || board.isWall(board.id(r + 1, check_c));
-            
-            // Nếu dọc theo cạnh có đường thoát
-            if ((up_wall && !check_up) || (down_wall && !check_down)) {
-                break; 
-            }
-
-            // Nếu có đích dọc cạnh này
+        auto checkCell = [&](int rr, int cc) {
+            int check_p = board.id(rr, cc);
             if (board.isGoal(check_p)) {
                 has_goal_on_edge = true;
-                break;
             }
+            bool check_up   = !board.valid(rr - 1, cc) || board.isWall(board.id(rr - 1, cc));
+            bool check_down = !board.valid(rr + 1, cc) || board.isWall(board.id(rr + 1, cc));
+            if ((up_wall && !check_up) || (down_wall && !check_down)) {
+                has_exit = true;
+            }
+        };
+
+        // Duyệt đoạn liên tục trên cùng một hàng
+        for (int check_c = c - 1; board.valid(r, check_c) && !board.isWall(board.id(r, check_c)); --check_c) {
+            checkCell(r, check_c);
+            if (has_goal_on_edge || has_exit) break;
+        }
+        for (int check_c = c + 1; !has_goal_on_edge && !has_exit && board.valid(r, check_c) && !board.isWall(board.id(r, check_c)); ++check_c) {
+            checkCell(r, check_c);
+            if (has_goal_on_edge || has_exit) break;
         }
 
-        // Đi sang bên phải dọc theo cạnh
-        if (!has_goal_on_edge) {
-            check_c = c;
-            while (true) {
-                check_c++;
-
-                // Gặp tường
-                if (!board.valid(r, check_c) || board.isWall(board.id(r, check_c))) {
-                    break;
-                }
-                
-                int check_p = board.id(r, check_c);
-                bool check_up   = !board.valid(r - 1, check_c) || board.isWall(board.id(r - 1, check_c));
-                bool check_down = !board.valid(r + 1, check_c) || board.isWall(board.id(r + 1, check_c));
-                
-                // Nếu có lối thoát
-                if ((up_wall && !check_up) || (down_wall && !check_down)) {
-                    break;
-                }
-
-                // Nếu có đích
-                if (board.isGoal(check_p)) {
-                    has_goal_on_edge = true;
-                    break;
-                }
-            }
-        }
-
-        if (!has_goal_on_edge) {
-            return true; // Cạnh này không có ô đích nào, đẩy thùng vào đây là chết
+        if (!has_goal_on_edge && !has_exit) {
+            return true;
         }
     }
 
-    // 2. Kiểm tra Cạnh Chết Dọc (Bức tường chạy dọc bên trái hoặc bên phải)
+    // 2. Kiểm tra Cạnh Chết Dọc (tường ở trái hoặc phải)
     bool left_wall  = !board.valid(r, c - 1) || board.isWall(board.id(r, c - 1));
     bool right_wall = !board.valid(r, c + 1) || board.isWall(board.id(r, c + 1));
 
     if (left_wall || right_wall) {
         bool has_goal_on_edge = false;
+        bool has_exit = false;
 
-        // đi theo phía trên
-        int check_r = r;
-        while (true) {
-            check_r--;
-            if (!board.valid(check_r, c) || board.isWall(board.id(check_r, c))) {
-                break;
-            }
-            
-            int check_p = board.id(check_r, c);
-            bool check_left  = !board.valid(check_r, c - 1) || board.isWall(board.id(check_r, c - 1));
-            bool check_right = !board.valid(check_r, c + 1) || board.isWall(board.id(check_r, c + 1));
-            
-            if ((left_wall && !check_left) || (right_wall && !check_right)) {
-                break;
-            }
+        auto checkCell = [&](int rr, int cc) {
+            int check_p = board.id(rr, cc);
             if (board.isGoal(check_p)) {
                 has_goal_on_edge = true;
-                break;
             }
+            bool check_left  = !board.valid(rr, cc - 1) || board.isWall(board.id(rr, cc - 1));
+            bool check_right = !board.valid(rr, cc + 1) || board.isWall(board.id(rr, cc + 1));
+            if ((left_wall && !check_left) || (right_wall && !check_right)) {
+                has_exit = true;
+            }
+        };
+
+        for (int check_r = r - 1; board.valid(check_r, c) && !board.isWall(board.id(check_r, c)); --check_r) {
+            checkCell(check_r, c);
+            if (has_goal_on_edge || has_exit) break;
+        }
+        for (int check_r = r + 1; !has_goal_on_edge && !has_exit && board.valid(check_r, c) && !board.isWall(board.id(check_r, c)); ++check_r) {
+            checkCell(check_r, c);
+            if (has_goal_on_edge || has_exit) break;
         }
 
-        // Đi theo phía dưới
-        if (!has_goal_on_edge) {
-            check_r = r;
-            while (true) {
-                check_r++;
-                if (!board.valid(check_r, c) || board.isWall(board.id(check_r, c))) {
-                    break;
-                }
-                
-                int check_p = board.id(check_r, c);
-                bool check_left  = !board.valid(check_r, c - 1) || board.isWall(board.id(check_r, c - 1));
-                bool check_right = !board.valid(check_r, c + 1) || board.isWall(board.id(check_r, c + 1));
-                
-                if ((left_wall && !check_left) || (right_wall && !check_right)) {
-                    break;
-                }
-                if (board.isGoal(check_p)) {
-                    has_goal_on_edge = true;
-                    break;
-                }
-            }
-        }
-
-        if (!has_goal_on_edge) {
+        if (!has_goal_on_edge && !has_exit) {
             return true;
         }
     }
