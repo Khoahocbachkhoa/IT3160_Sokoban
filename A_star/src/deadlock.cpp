@@ -1,37 +1,32 @@
-// deadlock.cpp
-#include "../include/deadlock.h"
 #include <algorithm>
 #include <queue>
+#include <map>
+
+#include "../include/deadlock.h"
+#include "../include/heuristic.h"
+
 using namespace std;
 
-// Khởi tạo bảng tra cứu deadclock
 DeadlockDetector::DeadlockDetector(const Board& board) {
-    simple_deadlocks.assign(board.getSize(), false);
-    computeSimpleDeadlocks(board);
+    is_deadlocks.assign(board.getSize(), false);
+
     computeDeadSquares(board);
+    computeSimpleDeadlocks(board);
 }
 
-// Khởi tạo cạnh chết và góc chết
 void DeadlockDetector::computeSimpleDeadlocks(const Board& board) {
     for (int p = 0; p < board.getSize(); ++p) {
         if (board.isWall(p) || board.isGoal(p)) {
             continue;
         }
 
-        // Kiểm tra góc chết
         if (isCornerDeadlock(board, p)) {
-            simple_deadlocks[p] = true;
+            is_deadlocks[p] = true;
             continue;
-        }
-
-        // Kiểm tra cạnh chết
-        if (isEdgeDeadlock(board, p)) {
-            simple_deadlocks[p] = true;
         }
     }
 }
 
-// Tính toán các ô chết khi push box vào
 void DeadlockDetector::computeDeadSquares(const Board &board) {
     int n = board.getSize();
 
@@ -43,20 +38,32 @@ void DeadlockDetector::computeDeadSquares(const Board &board) {
         q.push(goal);
     }
 
-    const int DIRS[4] = {
-        -board.getCols(),
-        board.getCols(),
-        -1,
-        1
-    };
+    const int dr[] = {-1,1,0,0};
+    const int dc[] = {0,0,-1,1};
 
+    int r, c;
     while (!q.empty()) {
         int cur = q.front();
         q.pop();
 
-        for (int dir : DIRS) {
-            int pre_box = cur - dir;
-            int player_pos = pre_box - dir;
+        r = board.row(cur);
+        c = board.col(cur);
+
+        for (int i = 0; i < 4; ++i) {
+            int pre_r = r - dr[i];
+            int pre_c = c - dc[i];
+
+            int player_r = pre_r - dr[i];
+            int player_c = pre_c - dc[i];
+
+            if (!board.valid(pre_r, pre_c))
+                continue;
+
+            if (!board.valid(player_r, player_c))
+                continue;
+
+            int pre_box = board.id(pre_r, pre_c);
+            int player_pos = board.id(player_r, player_c);
 
             if (!board.valid(pre_box) || board.isWall(pre_box))
                 continue;
@@ -73,11 +80,16 @@ void DeadlockDetector::computeDeadSquares(const Board &board) {
     for (int p = 0; p < n; ++p) {
         if (board.isWall(p))
             continue;
-        if (reachable[p] == false) simple_deadlocks[p] = true;
+
+        if (board.isGoal(p))
+            continue;
+
+        if (reachable[p] == false) {
+            is_deadlocks[p] = true;
+        }
     }
 }
 
-// Ô p có phải là một góc chết ko (bị kẹt trong góc vuông)
 bool DeadlockDetector::isCornerDeadlock(const Board& board, int p) const {
     if (board.isGoal(p)) {
         return false;
@@ -99,7 +111,7 @@ bool DeadlockDetector::isCornerDeadlock(const Board& board, int p) const {
            (left_blocked && up_blocked);
 }
 
-// Ô p có nằm trên một cạnh chết ko
+// ! Edge deadlock : lỗi thời và bị thay bởi dead square deadlock
 bool DeadlockDetector::isEdgeDeadlock(const Board& board, int p) const {
     if (board.isGoal(p)) {
         return false;
@@ -108,7 +120,7 @@ bool DeadlockDetector::isEdgeDeadlock(const Board& board, int p) const {
     int r = board.row(p);
     int c = board.col(p);
 
-    // 1. Kiểm tra Cạnh Chết Ngang (tường ở trên hoặc dưới)
+    // Nếu có tường chắn trên hoặc chắn dưới
     bool up_wall   = !board.valid(r - 1, c) || board.isWall(board.id(r - 1, c));
     bool down_wall = !board.valid(r + 1, c) || board.isWall(board.id(r + 1, c));
 
@@ -121,8 +133,15 @@ bool DeadlockDetector::isEdgeDeadlock(const Board& board, int p) const {
             if (board.isGoal(check_p)) {
                 has_goal_on_edge = true;
             }
-            bool check_up   = !board.valid(rr - 1, cc) || board.isWall(board.id(rr - 1, cc));
-            bool check_down = !board.valid(rr + 1, cc) || board.isWall(board.id(rr + 1, cc));
+            bool check_up   = !board.valid(rr - 1, cc) 
+                || board.isWall(board.id(rr - 1, cc));
+                //|| dead_squares[board.id(rr - 1, cc)];
+
+            bool check_down = !board.valid(rr + 1, cc) 
+                || board.isWall(board.id(rr + 1, cc));
+                //|| dead_squares[board.id(rr + 1, cc)];
+                
+            // Nếu đi dọc theo mà thấy có lối thoát thì coi như ko phải deadlock
             if ((up_wall && !check_up) || (down_wall && !check_down)) {
                 has_exit = true;
             }
@@ -156,8 +175,14 @@ bool DeadlockDetector::isEdgeDeadlock(const Board& board, int p) const {
             if (board.isGoal(check_p)) {
                 has_goal_on_edge = true;
             }
-            bool check_left  = !board.valid(rr, cc - 1) || board.isWall(board.id(rr, cc - 1));
-            bool check_right = !board.valid(rr, cc + 1) || board.isWall(board.id(rr, cc + 1));
+            bool check_left  = !board.valid(rr, cc - 1) 
+                || board.isWall(board.id(rr, cc - 1));
+                //|| dead_squares[board.id(rr, cc - 1)];
+
+            bool check_right = !board.valid(rr, cc + 1) 
+                || board.isWall(board.id(rr, cc + 1));
+                //|| dead_squares[board.id(rr, cc + 1)];
+            
             if ((left_wall && !check_left) || (right_wall && !check_right)) {
                 has_exit = true;
             }
@@ -181,15 +206,13 @@ bool DeadlockDetector::isEdgeDeadlock(const Board& board, int p) const {
 }
 
 bool DeadlockDetector::isSimpleDeadlock(int p) const {
-    if (p < 0 || p >= (int)simple_deadlocks.size()) {
+    if (p < 0 || p >= (int)is_deadlocks.size()) {
         return false;
     }
-    return simple_deadlocks[p];
+    return is_deadlocks[p];
 }
 
-// Kiểm tra trạng thái kẹt sao cho không thể đẩy được thùng
 bool DeadlockDetector::isFreezeDeadlock(const Board& board, const vector<int>& boxes) const {
-    // ô (r,c) có phải là tường hoặc thùng ko
     auto isWallOrBox = [&](int r, int c) -> bool {
         if (!board.valid(r, c)) return true;
         int p = board.id(r, c);

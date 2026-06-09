@@ -1,10 +1,11 @@
-// board.cpp
 #include <iostream>
+#include <queue>
+
 #include "../include/board.h"
 #include "../include/distance.h"
+
 using namespace std;
 
-// reset trạng thái của bảng
 void Board::clear() {
     rows = cols = 0;
     is_wall.clear();
@@ -12,7 +13,6 @@ void Board::clear() {
     goals.clear();
 }
 
-// ô chữ đã được giải chưa
 bool Board::isSolved(const vector<int>& boxes) const {
     for (int box : boxes) {
         if (!is_goal[box]) return false;
@@ -20,7 +20,6 @@ bool Board::isSolved(const vector<int>& boxes) const {
     return true;
 }
 
-// dùng cho set, map
 bool State::operator<(const State& other) const {
     if (canonical_player != other.canonical_player) 
         return canonical_player < other.canonical_player;
@@ -31,7 +30,6 @@ bool State::operator==(const State& other) const {
     return canonical_player == other.canonical_player && boxes == other.boxes;
 }
 
-// Hàm băm cho state
 size_t StateHash::operator()(const State& s) const {
     size_t h = hash<int>{}(s.canonical_player);
     
@@ -41,14 +39,13 @@ size_t StateHash::operator()(const State& s) const {
     return h;
 }
 
-// đọc ô chữ từ bàn phím
 void readBoard(Board& board, State& start) {
     board.clear();
     start = State();
 
     cin >> board.rows >> board.cols;
     std::string header_line;
-    std::getline(cin, header_line); // consume the rest of the header line
+    std::getline(cin, header_line);
 
     int n = board.rows * board.cols;
 
@@ -104,4 +101,61 @@ void readBoard(Board& board, State& start) {
     }
 
     sort(start.boxes.begin(), start.boxes.end());
+}
+
+void Board::computePushDistance() {
+    const int INF = 1e9;
+
+    push_dist.assign(
+        goals.size(),
+        vector<int>(getSize(), INF)
+    );
+
+    const int dr[] = {-1,1,0,0};
+    const int dc[] = {0,0,-1,1};
+
+    for (int g = 0; g < (int)goals.size(); ++g) {
+        int goal = goals[g];
+
+        queue<int> q;
+
+        push_dist[g][goal] = 0;
+        q.push(goal);
+
+        int r, c;
+        while (!q.empty()) {
+            int cur = q.front();
+            q.pop();
+
+            r = row(cur);
+            c = col(cur);
+
+            for (int i = 0; i < 4; ++i) {
+                int pre_r = r - dr[i];
+                int pre_c = c - dc[i];
+
+                int player_r = pre_r - dr[i];
+                int player_c = pre_c - dc[i];
+
+                if (!valid(pre_r, pre_c))
+                    continue;
+
+                if (!valid(player_r, player_c))
+                    continue;
+
+                int pre_box = id(pre_r, pre_c);
+                int player_pos = id(player_r, player_c);
+
+                if (isWall(pre_box))
+                    continue;
+                if (isWall(player_pos))
+                    continue;
+
+                if (push_dist[g][pre_box] == INF) {
+                    push_dist[g][pre_box] = push_dist[g][cur] + 1;
+                    q.push(pre_box);
+                }
+            }
+        }
+    }
 }

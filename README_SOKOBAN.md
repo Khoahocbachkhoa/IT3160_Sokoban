@@ -132,7 +132,6 @@ $  : thung
 ```
 
 GUI co the doc level co hoac khong co dong dau `rows cols`.
-
 C++ solver goc trong `A_star` yeu cau input co dong dau:
 
 ```text

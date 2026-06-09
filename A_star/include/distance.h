@@ -9,11 +9,9 @@ const int DIR_UP    = 1;
 const int DIR_RIGHT = 2;
 const int DIR_DOWN  = 3;
 
-// Lưu khoảng cách di chuyển giữa các ô trong map
-// Các ô đích là các ô có thể di chuyển được tới mà không đẩy thùng
 struct DistanceMap {
-    // * distances[p] = số bước tới ô có id là p
-    // * distances[p] = -1: ô p ko tới được
+    // distances[p] = số bước tới ô có id là p
+    // distances[p] = -1: ô p ko tới được
     std::vector<int> distances; 
     int width;
     int height;
@@ -34,17 +32,28 @@ struct DistanceMap {
             distances[p] = dist;
         }
     }
+
+    // Ô nhỏ nhất nằm trong phạm vi
+    int get_min_cell() const {
+        int min_cell = 1e9;
+
+        for (int cell = 0; cell < (int)distances.size(); ++cell) {
+            if (this->get(cell) >= 0) {
+                min_cell = cell;
+                break;
+            }
+        }
+
+        return min_cell;
+    }
 };
 
-// Tính toán khoảng cách từ ô start tới tất cả các ô có thể đi được
 DistanceMap calculateDistances(const Board& board, int start_p, const std::vector<int>& boxes);
 
-// Kiểm tra xem người chơi có thể đi bộ từ ô 'from_p' đến ô 'to_p' không
 bool canReach(const Board& board, int from_p, int to_p, const std::vector<int>& boxes);
 
-// * Tìm đường đi chi tiết từ 'from_p' đến 'to_p'
-// trả về vector các bước dạng 0, 1, 2, 3.. (DIR_LEFT, DIR_UP, ..)
-// Nếu không tìm thấy lộ trình, trả về vector rỗng.
+// Tìm đường đi chi tiết từ 'from_p' đến 'to_p'
+// Trả về vector các bước dạng 0, 1, 2, 3.. (DIR_LEFT, DIR_UP, ..) hoặc vector rỗng nếu không tìm thấy
 std::vector<int> getPath(const Board& board, int from_p, int to_p, const std::vector<int>& boxes);
 
 #endif

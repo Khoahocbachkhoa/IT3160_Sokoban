@@ -5,7 +5,6 @@
 #include <string>
 #include <algorithm>
 
-// Lưu cấu trúc tĩnh của bảng
 class Board {
 public:
     int rows = 0;
@@ -14,7 +13,10 @@ public:
     std::vector<bool> is_wall;  // is_wall[p] = true nếu ô p là tường
     std::vector<bool> is_goal;  // is_goal[p] = true nếu ô p là đích
     
-    std::vector<int> goals;     // Danh sách các ô là đích
+    std::vector<int> goals;
+
+    // push_dis[g][cell] : số lần tối thiểu để đẩy thùng từ ô cell tới g
+    std::vector<std::vector<int>> push_dist;
 
     // ánh xạ (r,c) -> index mảng 1 chiều
     inline int id(int r, int c) const { 
@@ -52,37 +54,33 @@ public:
     // reset trạng thái của bảng
     void clear();
 
+    // Tính toán khoảng cách đẩy thùng
+    void computePushDistance();
+
     // ô chữ đã được giải chưa
     bool isSolved(const std::vector<int>& boxes) const;
 };
 
-// Lưu trạn thái động (vị trí người chơi và các thùng)
 struct State {
-    // Vị trí người chơi
     int player = -1;
-    // Ô nhỏ nhất mà người chơi có thể đi đến từ vị trí hiện tại
-    // * Dùng để chuẩn hóa khi thêm vào visited
+
     int canonical_player = -1;
-    // Vị trí các thùng sắp xếp theo thứ tự tăng dần 
+    // Vị trí các thùng sắp xếp theo thứ tự tăng dần
     std::vector<int> boxes;
 
-    // kiểm tra tại p có thùng nào chưa
     bool hasBox(int p) const {
         return std::binary_search(boxes.begin(), boxes.end(), p);
     }
 
-    // dùng cho set, map
     bool operator<(const State& other) const;
 
     bool operator==(const State& other) const;
 };
 
-// Hàm băm của state
 struct StateHash {
     size_t operator()(const State& s) const;
 };
 
-// Hàm đọc bảng dữ liệu từ input đầu vào
 void readBoard(Board& board, State& start);
 
 #endif

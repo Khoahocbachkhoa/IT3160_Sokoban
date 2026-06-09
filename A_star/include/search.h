@@ -1,20 +1,16 @@
 #ifndef SEARCH_H
 #define SEARCH_H
 
-#include "board.h"
-#include "deadlock.h"
-#include "distance.h"
-#include "heuristic.h"
-
 #include <string>
-#include <vector>
+
+#include "board.h"
 
 struct SolveResult {
     bool solved;
-    long long time_ms; // Thời gian chạy
-    long long nodes_searched;   // Số node đã duyệt
-    std::string solution;       // Các bước để đi tới lời giải
-    std::string fail_reason;    // Lý do thất bại
+    long long time_ms;
+    long long nodes_searched;
+    std::string solution;
+    std::string fail_reason;
 };
 
 SolveResult solveSystem(const Board& board, const State& start_state, long long time_limit_ms);

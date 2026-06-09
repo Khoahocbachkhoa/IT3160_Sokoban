@@ -1,5 +1,4 @@
 #include <iostream>
-#include <string>
 
 #include "../include/board.h"
 #include "../include/search.h"
@@ -15,12 +14,13 @@ int main() {
 
     readBoard(board, start_state);
 
+    board.computePushDistance();
+
     if (board.getSize() == 0 || start_state.player == -1) {
-        cout << "Bản đồ không hợp lệ!" << endl;
+        cout << "Invalid map!" << endl;
         return 1;
     }
 
-    // Giới hạn thời gian tìm kiếm
     long long time_limit = 120000;
 
     SolveResult result = solveSystem(board, start_state, time_limit);
