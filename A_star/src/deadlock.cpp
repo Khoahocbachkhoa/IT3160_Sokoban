@@ -1,11 +1,14 @@
 // deadlock.cpp
 #include "../include/deadlock.h"
 #include <algorithm>
+#include <queue>
 using namespace std;
 
+// Khởi tạo bảng tra cứu deadclock
 DeadlockDetector::DeadlockDetector(const Board& board) {
     simple_deadlocks.assign(board.getSize(), false);
     computeSimpleDeadlocks(board);
+    computeDeadSquares(board);
 }
 
 // Khởi tạo cạnh chết và góc chết
@@ -25,6 +28,52 @@ void DeadlockDetector::computeSimpleDeadlocks(const Board& board) {
         if (isEdgeDeadlock(board, p)) {
             simple_deadlocks[p] = true;
         }
+    }
+}
+
+// Tính toán các ô chết khi push box vào
+void DeadlockDetector::computeDeadSquares(const Board &board) {
+    int n = board.getSize();
+
+    std::vector reachable(n, false);
+    std::queue<int> q;
+
+    for (int goal : board.goals) {
+        reachable[goal] = true;
+        q.push(goal);
+    }
+
+    const int DIRS[4] = {
+        -board.getCols(),
+        board.getCols(),
+        -1,
+        1
+    };
+
+    while (!q.empty()) {
+        int cur = q.front();
+        q.pop();
+
+        for (int dir : DIRS) {
+            int pre_box = cur - dir;
+            int player_pos = pre_box - dir;
+
+            if (!board.valid(pre_box) || board.isWall(pre_box))
+                continue;
+            if (!board.valid(player_pos) || board.isWall(player_pos))
+                continue;
+            
+            if (!reachable[pre_box]) {
+                reachable[pre_box] = true;
+                q.push(pre_box);
+            }
+        }
+    }
+
+    for (int p = 0; p < n; ++p) {
+        if (board.isWall(p))
+            continue;
+        if (reachable[p] == false) simple_deadlocks[p] = true;
     }
 }
 

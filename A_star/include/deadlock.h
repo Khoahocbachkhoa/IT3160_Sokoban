@@ -14,6 +14,9 @@ private:
     // Tính toán các góc chết tĩnh dựa vào cấu trúc tường của bản đồ
     void computeSimpleDeadlocks(const Board& board);
 
+    // Tính toán các ô vuông mà khi đặt box ở đó ta không thể đi tới đích nào được
+    void computeDeadSquares(const Board& board);
+
     // Ô p có phải là một góc chết ko (bị kẹt trong góc vuông)
     bool isCornerDeadlock(const Board& board, int p) const;
 
