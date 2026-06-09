@@ -60,6 +60,9 @@ public:
 struct State {
     // Vị trí người chơi
     int player = -1;
+    // Ô nhỏ nhất mà người chơi có thể đi đến từ vị trí hiện tại
+    // * Dùng để chuẩn hóa khi thêm vào visited
+    int canonical_player = -1;
     // Vị trí các thùng sắp xếp theo thứ tự tăng dần 
     std::vector<int> boxes;
 

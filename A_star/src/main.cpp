@@ -33,7 +33,7 @@ int main() {
     } else {
         cout << "Không tìm thấy lời giải!" << endl;
         cout << "Thời gian chạy : " << result.time_ms << " ms" << endl;
-        cout << "Số node duyệt     : " << result.nodes_searched << " trạng thái" << endl;
+        cout << "Số node duyệt  : " << result.nodes_searched << " trạng thái" << endl;
         cout << "Lý do          : " << result.fail_reason << endl;
     }
 

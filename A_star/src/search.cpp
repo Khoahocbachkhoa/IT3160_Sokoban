@@ -130,6 +130,19 @@ std::vector<Successor> generateSuccessors(
             next.g = current.g + 1; // * Tính chi phí là 1 lần đẩy thùng
             next.h = enhancedHeuristic(board, next.state.boxes);
 
+            //? Chuẩn hóa vị trí người chơi
+            DistanceMap can_reach = calculateDistances(board, next.state.player, next.state.boxes);
+            int min_cell = 1e9;
+
+            for (int cell = 0; cell < board.getSize(); ++cell) {
+                if (can_reach.get(cell) >= 0) {
+                    min_cell = cell;
+                    break;
+                }
+            }
+            // Vị trí chuẩn hóa là vị trí nhỏ nhất có thể đi tới
+            next.state.canonical_player = min_cell;
+
             Successor s;
             s.node = next;
             s.move = move_str;
@@ -179,6 +192,17 @@ SolveResult solveSystem(const Board& board, const State& start_state, long long 
     start_node.state = start_state;
     start_node.g = 0;
     start_node.h = enhancedHeuristic(board, start_state.boxes);
+    DistanceMap can_reach = calculateDistances(board, start_node.state.player, start_node.state.boxes);
+    int min_cell = 1e9;
+
+    for (int cell = 0; cell < board.getSize(); ++cell) {
+        if (can_reach.get(cell) >= 0) {
+            min_cell = cell;
+            break;
+        }
+    }
+
+    start_node.state.canonical_player = min_cell;
 
     frontier.push(start_node);
 
@@ -207,7 +231,7 @@ SolveResult solveSystem(const Board& board, const State& start_state, long long 
             std::vector<std::string> segments;
 
             State cur = current.state;
-            while (!(cur == start_state))
+            while (!(cur == start_node.state))
             {
                 auto it = parent_map.find(cur);
                 segments.push_back(it->second.move);

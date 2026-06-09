@@ -1,6 +1,7 @@
 // board.cpp
 #include <iostream>
 #include "../include/board.h"
+#include "../include/distance.h"
 using namespace std;
 
 // reset trạng thái của bảng
@@ -21,18 +22,18 @@ bool Board::isSolved(const vector<int>& boxes) const {
 
 // dùng cho set, map
 bool State::operator<(const State& other) const {
-    if (player != other.player) 
-        return player < other.player;
+    if (canonical_player != other.canonical_player) 
+        return canonical_player < other.canonical_player;
     return boxes < other.boxes;
 }
 
 bool State::operator==(const State& other) const {
-    return player == other.player && boxes == other.boxes;
+    return canonical_player == other.canonical_player && boxes == other.boxes;
 }
 
 // Hàm băm cho state
 size_t StateHash::operator()(const State& s) const {
-    size_t h = hash<int>{}(s.player);
+    size_t h = hash<int>{}(s.canonical_player);
     
     for (int box : s.boxes) {
         h ^= hash<int>{}(box) + 0x9e3779b9 + (h << 6) + (h >> 2);

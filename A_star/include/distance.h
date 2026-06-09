@@ -46,6 +46,5 @@ bool canReach(const Board& board, int from_p, int to_p, const std::vector<int>& 
 // trả về vector các bước dạng 0, 1, 2, 3.. (DIR_LEFT, DIR_UP, ..)
 // Nếu không tìm thấy lộ trình, trả về vector rỗng.
 std::vector<int> getPath(const Board& board, int from_p, int to_p, const std::vector<int>& boxes);
-std::vector<int> getPath(DistanceMap &dmap, int to_p);
 
 #endif
