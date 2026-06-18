@@ -1,172 +1,177 @@
 # IT3160 Sokoban
 
-Du an Sokoban gom 2 phan chinh:
+Project Sokoban gồm 3 thành phần chính:
 
-- `A_star/`: thuat toan giai Sokoban bang C++.
-- `sokoban_gui/`: giao dien choi game bang Pygame, co the goi C++ solver.
+- `solver/`: C++ solver đa thuật toán (A*, BFS, DFS, UCS).
+- `A_star/`: phiên bản A* trước đó và code tham khảo.
+- `sokoban_gui/`: GUI Pygame cho phép chơi, xem, và gọi solver.
+- `data/`: chứa các level mẫu và file level người dùng.
 
-## Cau Truc Thu Muc
+## Cấu trúc thư mục
 
 ```text
 IT3160_Sokoban/
-|-- A_star/
+|-- A_star/                # Code A* ban đầu
 |   |-- include/
-|   |   |-- board.h
-|   |   |-- deadlock.h
-|   |   |-- distance.h
-|   |   |-- heuristic.h
-|   |   `-- search.h
 |   |-- src/
-|   |   |-- main.cpp
-|   |   |-- board.cpp
-|   |   |-- deadlock.cpp
-|   |   |-- distance.cpp
-|   |   |-- heuristic.cpp
-|   |   `-- search.cpp
-|   `-- solver
-|
+|-- solver/                # C++ solver hiện tại
+|   |-- include/
+|   |-- src/
+|   |-- Makefile
+|   |-- sokoban.exe        # nếu đã build
+|-- sokoban_gui/           # GUI Python + solver client
+|   |-- bin/
+|   |-- src/
+|   |-- assets/
 |-- data/
+|   |-- level1.txt
 |   |-- level2.txt
 |   |-- level3.txt
 |   |-- level4.txt
-|   |-- mylevel.txt
-|   `-- web_levels/
-|
-`-- sokoban_gui/
-    |-- main.py
-    |-- config.py
-    |-- bin/
-    |   `-- cpp_solver.exe
-    |-- assets/
-    |   |-- fonts/
-    |   `-- images/
-    `-- src/
-        |-- assets.py
-        |-- button.py
-        |-- game.py
-        |-- level.py
-        |-- renderer.py
-        `-- solver_client.py
+|   |-- custom.txt
+|-- README_SOKOBAN.md      # tài liệu hiện tại
 ```
 
-## Yeu Cau Moi Truong
+## Yêu cầu môi trường
 
-Can co:
-
-- Python 3
+- Python 3.x
 - Pygame
-- `g++` neu muon GUI tu build lai C++ solver
+- `g++` (hoặc GCC) để biên dịch solver C++
 
-Cai Pygame:
+Cài Pygame:
 
 ```powershell
 python -m pip install pygame
 ```
 
-Kiem tra `g++`:
+Kiểm tra `g++`:
 
 ```powershell
 g++ --version
 ```
 
-## Chay GUI
+## Cách biên dịch solver C++
 
-Tu thu muc `Project_AI`, chay:
-
-```powershell
-python IT3160_Sokoban\sokoban_gui\main.py
-```
-
-Dieu khien:
-
-- `WASD` hoac phim mui ten: di chuyen nguoi choi
-- `R`: choi lai level hien tai
-- `P`: pause/resume
-- `SOLVE`: mo menu chon thuat toan
-- `STEP`: chay tung buoc trong loi giai da tim duoc
-- `RETRY`: choi lai level hien tai
-- `NEXT`: chuyen sang level tiep theo
-
-## Goi Solver Trong GUI
-
-Khi bam `SOLVE`, GUI se hien menu chon thuat toan:
-
-- `A STAR`: goi C++ A* solver trong `A_star`
-- `DFS`: nut da co trong GUI, chua noi thuat toan
-- `BFS`: nut da co trong GUI, chua noi thuat toan
-- `UCS`: nut da co trong GUI, chua noi thuat toan
-
-Luong chay cua `A STAR`:
-
-```text
-Pygame GUI
--> lay map hien tai
--> tao input dang rows cols
--> goi cpp_solver.exe bang subprocess
--> nhan chuoi loi giai tu C++ solver
--> luu loi giai vao Game
--> bam STEP de chay tung buoc
-```
-
-Neu chua co `sokoban_gui/bin/cpp_solver.exe`, GUI se tu build tu source trong `A_star`.
-Viec build dung ban copy tam trong `sokoban_gui/bin`, khong sua source goc trong `A_star`.
-
-## Format Level
-
-GUI doc cac file:
-
-```text
-IT3160_Sokoban/data/level*.txt
-```
-
-Ho tro ky hieu Sokoban chuan:
-
-```text
-#  : tuong
-   : nen trong
-$  : thung
-.  : o dich
-@  : nguoi choi
-*  : thung tren o dich
-+  : nguoi choi tren o dich
-```
-
-GUI co the doc level co hoac khong co dong dau `rows cols`.
-C++ solver goc trong `A_star` yeu cau input co dong dau:
-
-```text
-rows cols
-```
-
-Khi GUI goi solver, phan nay duoc tao tu dong.
-
-## Chay C++ Solver Rieng
-
-Neu muon chay solver C++ doc lap, input can co dong dau `rows cols`.
-
-Vi du:
+Từ thư mục `solver/`:
 
 ```powershell
-cd IT3160_Sokoban\A_star
-g++ -std=c++14 -O2 src\main.cpp src\board.cpp src\search.cpp src\heuristic.cpp src\distance.cpp src\deadlock.cpp -o solver.exe
-.\solver.exe < ..\data\mylevel.txt
+cd "e:/NMTTNT - IT3160/IT3160_Sokoban/solver"
+# Nếu bạn có make
+make
 ```
 
-Luu y: mot so level trong `data/` khong co dong `rows cols`, nen chay truc tiep bang C++ solver co the doc sai. GUI thi tu xu ly phan nay khi goi solver.
+Hoặc dùng g++ trực tiếp:
 
-## Mo Ta Thuat Toan A*
+```powershell
+g++ -O3 -std=c++17 -Wall -Wextra -Iinclude src\*.cpp -o sokoban.exe
+```
 
-Phan C++ solver dung A* theo trang thai day thung:
+Sau khi xây dựng thành công, file chạy sẽ là `solver/sokoban.exe`.
 
-- State gom vi tri nguoi choi va danh sach vi tri cac thung.
-- BFS dung de kiem tra nguoi choi co di toi vi tri can dung de day thung duoc khong.
-- Successor chi sinh ra khi co mot lan day thung hop le.
-- Heuristic dua tren khoang cach Manhattan ghep thung voi o dich, co them penalty cho thung bi ket.
-- Deadlock detection kiem tra cac dang ket don gian nhu goc chet, canh chet va freeze deadlock.
+## Cách chạy solver C++
 
-Chuoi loi giai gom:
+Solver hiện tại dùng đầu vào chuẩn là board đã có dòng `rows cols` ở đầu. Bạn có thể chạy như sau:
 
-- Chu thuong `l/u/r/d`: nguoi choi di bo
-- Chu hoa `L/U/R/D`: nguoi choi day thung
+```powershell
+Get-Content ..\data\level1.txt | .\sokoban.exe astar
+```
 
-Trong GUI, ca chu thuong va chu hoa deu duoc dung de di chuyen tung buoc khi bam `STEP`.
+Tùy chọn thuật toán:
+
+- `astar`
+- `bfs`
+- `dfs`
+- `ucs`
+
+Ví dụ:
+
+```powershell
+Get-Content ..\data\level1.txt | .\sokoban.exe bfs
+Get-Content ..\data\level1.txt | .\sokoban.exe dfs
+Get-Content ..\data\level1.txt | .\sokoban.exe ucs
+```
+
+## Cấu trúc solver hiện tại
+
+`solver/include/`
+
+- `board.h`: định nghĩa board và trạng thái.
+- `distance.h`: tìm đường và khoảng cách di chuyển của người chơi.
+- `deadlock.h`: phát hiện bế tắc đơn giản và freeze deadlock.
+- `heuristic.h`: hàm heuristic A*.
+- `search.h`: khai báo các hàm giải thuật.
+- `bfs.h`, `dfs.h`, `ucs.h`: header helper cho từng thuật toán.
+
+`solver/src/`
+
+- `main.cpp`: chương trình chính, chọn thuật toán bằng tham số dòng lệnh.
+- `search_astar.cpp`: cài đặt A*.
+- `search_bfs.cpp`: cài đặt BFS.
+- `search_dfs.cpp`: cài đặt DFS.
+- `search_ucs.cpp`: cài đặt UCS.
+- `board.cpp`, `distance.cpp`, `deadlock.cpp`, `heuristic.cpp`: module hỗ trợ chung.
+
+## Cách chạy GUI
+
+Từ thư mục gốc dự án:
+
+```powershell
+python sokoban_gui\main.py
+```
+
+GUI hỗ trợ:
+
+- di chuyển bằng `WASD` hoặc phím mũi tên
+- `R`: chơi lại level
+- `P`: tạm dừng / tiếp tục
+- nút `SOLVE`: chọn thuật toán và giải tự động
+- nút `STEP`: chạy từng bước của lời giải
+- `RETRY`, `NEXT`, các chức năng điều khiển level
+
+## Định dạng level
+
+Các file level trong `data/` sử dụng ký hiệu chuẩn Sokoban:
+
+```text
+#  : tường
+   : ô trống
+$  : thùng
+.  : đích
+@  : người chơi
+*  : thùng trên đích
++  : người chơi trên đích
+```
+
+Lưu ý: GUI có thể đọc cả level có hoặc không có dòng `rows cols` ở đầu. Solver C++ hiện tại cũng có thể được điều chỉnh để nhận đầu vào do GUI tạo.
+
+## Thuật toán
+
+Solver hỗ trợ 4 thuật toán:
+
+- `A*`: tìm kiếm theo chi phí `g + h` với heuristic Manhattan matching và deadlock detection.
+- `BFS`: tìm kiếm theo chiều rộng, bảo đảm tìm đường ngắn nhất theo số lần đẩy.
+- `DFS`: tìm kiếm theo chiều sâu.
+- `UCS`: Uniform Cost Search theo chi phí `g` (số lần đẩy).
+
+## Ghi chú
+
+- Luồng giải chung: mã trạng thái chứa vị trí người chơi và danh sách vị trí thùng.
+- Mỗi bước successor là một lần đẩy thùng hợp lệ, kèm theo đường đi của người chơi tới vị trí đẩy.
+- Deadlock detection giúp loại bỏ các trạng thái đẩy vào bế tắc.
+- Chuỗi giải trả về gồm:
+  - ký tự thường `l/u/r/d` cho từng bước đi của người chơi
+  - ký tự hoa `L/U/R/D` cho bước đẩy thùng
+
+## Ví dụ chạy nhanh
+
+```powershell
+# build solver
+cd "e:/NMTTNT - IT3160/IT3160_Sokoban/solver"
+g++ -O3 -std=c++17 -Wall -Wextra -Iinclude src\*.cpp -o sokoban.exe
+
+# chạy A*
+Get-Content ..\data\level1.txt | .\sokoban.exe astar
+
+# chạy BFS
+Get-Content ..\data\level1.txt | .\sokoban.exe bfs
+```
