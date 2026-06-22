@@ -197,7 +197,7 @@ class Renderer:
 
         fonts = self.assets.fonts
         self._draw_centered_text(screen, "CHOOSE SOLVER", fonts["bold_26"], COLOR_TEXT, menu_rect.centerx, menu_rect.y + 24)
-        self._draw_centered_text(screen, "A Star calls the C++ solver", fonts["regular_18"], COLOR_MUTED, menu_rect.centerx, menu_rect.y + 58)
+        self._draw_centered_text(screen, "A*: optimized | Others: classic", fonts["regular_18"], COLOR_MUTED, menu_rect.centerx, menu_rect.y + 58)
 
         for button in buttons:
             button.draw(screen, mouse_pos)

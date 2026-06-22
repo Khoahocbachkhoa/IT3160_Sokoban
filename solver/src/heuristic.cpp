@@ -247,8 +247,5 @@ int heuristicPushDistanceHungarian(const Board& board, const std::vector<int>& b
 }
 
 int heuristic(const Board& board, const std::vector<int>& boxes) {
-    // ...
-    // return heuristicPushDistanceHungarian(board, boxes);
-    // return enhancedHeuristicManhattanMatching(board, boxes);
-    return heuristicManhattanMatchingGreedy(board, boxes);
+    return heuristicPushDistanceHungarian(board, boxes);
 }

@@ -19,7 +19,8 @@ DistanceMap calculateDistances(const Board& board, int start_p, const vector<int
 
     // BFS tìm khoảng cách
     while (!q.empty()) {
-        auto [curr_p, dist] = q.front();
+        int curr_p = q.front().first;
+        int dist = q.front().second;
         q.pop();
 
         int r = board.row(curr_p);

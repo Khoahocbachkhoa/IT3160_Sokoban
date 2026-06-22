@@ -1,12 +1,34 @@
+import hashlib
 import re
-import shutil
 import subprocess
 from dataclasses import dataclass
 
-from config import ASTAR_DIR, CPP_SOLVER_EXE, SOLVER_BIN_DIR, SOLVER_TIMEOUT_SECONDS
+from config import (
+    CPP_SOLVER_BUILD_STAMP,
+    CPP_SOLVER_EXE,
+    SOLVER_BIN_DIR,
+    SOLVER_DIR,
+    SOLVER_TIMEOUT_SECONDS,
+)
 
 
 ALGORITHMS = ("A Star", "DFS", "BFS", "UCS")
+ALGORITHM_ARGUMENTS = {
+    "A Star": "astar",
+    "DFS": "dfs",
+    "BFS": "bfs",
+    "UCS": "ucs",
+}
+
+BUILD_FLAGS = (
+    "-std=c++14",
+    "-O3",
+    "-Wall",
+    "-Wextra",
+    "-static-libgcc",
+    "-static-libstdc++",
+)
+BUILD_VERSION = "multisolver-v1"
 
 
 @dataclass
@@ -21,14 +43,15 @@ class SolverResult:
 
 class SolverClient:
     def solve(self, grid, algorithm):
-        if algorithm != "A Star":
+        solver_argument = ALGORITHM_ARGUMENTS.get(algorithm)
+        if solver_argument is None:
             return SolverResult(
                 solved=False,
                 algorithm=algorithm,
-                message=f"{algorithm} is not connected yet. Current C++ solver supports A Star only.",
+                message=f"Unsupported algorithm: {algorithm}",
             )
 
-        build_result = self._ensure_cpp_solver()
+        build_result = self._ensure_cpp_solver(algorithm)
         if build_result is not None:
             return build_result
 
@@ -36,17 +59,17 @@ class SolverClient:
 
         try:
             completed = subprocess.run(
-                [str(CPP_SOLVER_EXE)],
+                [str(CPP_SOLVER_EXE), solver_argument],
                 input=level_input,
                 text=True,
                 encoding="utf-8",
                 errors="replace",
                 capture_output=True,
                 timeout=SOLVER_TIMEOUT_SECONDS,
-                cwd=str(ASTAR_DIR),
+                cwd=str(SOLVER_DIR),
             )
         except subprocess.TimeoutExpired:
-            return SolverResult(False, algorithm, message="C++ solver timed out")
+            return SolverResult(False, algorithm, message=f"{algorithm} solver timed out")
         except OSError as exc:
             return SolverResult(False, algorithm, message=f"Cannot run C++ solver: {exc}")
 
@@ -63,23 +86,33 @@ class SolverClient:
         reason = self._parse_failure_reason(stdout) or "No solution found"
         return SolverResult(False, algorithm, message=reason, stdout=stdout, stderr=stderr)
 
-    def _ensure_cpp_solver(self):
-        if CPP_SOLVER_EXE.exists():
+    def _ensure_cpp_solver(self, algorithm):
+        sources = self._solver_sources()
+        if not sources:
+            return SolverResult(False, algorithm, message=f"No C++ source files found in {SOLVER_DIR / 'src'}")
+
+        include_dir = SOLVER_DIR / "include"
+        if not include_dir.is_dir():
+            return SolverResult(False, algorithm, message=f"Solver include directory was not found: {include_dir}")
+
+        build_signature = self._build_signature(sources)
+        if (
+            CPP_SOLVER_EXE.is_file()
+            and CPP_SOLVER_BUILD_STAMP.is_file()
+            and CPP_SOLVER_BUILD_STAMP.read_text(encoding="utf-8").strip() == build_signature
+        ):
             return None
 
         SOLVER_BIN_DIR.mkdir(parents=True, exist_ok=True)
-        build_dir = self._prepare_build_sources()
-
-        sources = [
-            build_dir / "src" / "main.cpp",
-            build_dir / "src" / "board.cpp",
-            build_dir / "src" / "search.cpp",
-            build_dir / "src" / "heuristic.cpp",
-            build_dir / "src" / "distance.cpp",
-            build_dir / "src" / "deadlock.cpp",
+        temporary_exe = SOLVER_BIN_DIR / "cpp_solver.new.exe"
+        command = [
+            "g++",
+            *BUILD_FLAGS,
+            f"-I{include_dir}",
+            *map(str, sources),
+            "-o",
+            str(temporary_exe),
         ]
-
-        command = ["g++", "-std=c++14", "-O2", *map(str, sources), "-o", str(CPP_SOLVER_EXE)]
 
         try:
             completed = subprocess.run(
@@ -89,47 +122,38 @@ class SolverClient:
                 errors="replace",
                 capture_output=True,
                 timeout=60,
-                cwd=str(ASTAR_DIR),
+                cwd=str(SOLVER_DIR),
             )
         except FileNotFoundError:
-            return SolverResult(False, "A Star", message="g++ was not found. Install MinGW or add g++ to PATH.")
+            return SolverResult(False, algorithm, message="g++ was not found. Install MinGW or add g++ to PATH.")
         except subprocess.TimeoutExpired:
-            return SolverResult(False, "A Star", message="C++ solver build timed out.")
+            return SolverResult(False, algorithm, message="C++ solver build timed out.")
 
         if completed.returncode != 0:
+            temporary_exe.unlink(missing_ok=True)
             return SolverResult(
                 False,
-                "A Star",
+                algorithm,
                 message="Failed to build C++ solver.",
                 stdout=completed.stdout,
                 stderr=completed.stderr,
             )
 
-        shutil.rmtree(build_dir, ignore_errors=True)
+        temporary_exe.replace(CPP_SOLVER_EXE)
+        CPP_SOLVER_BUILD_STAMP.write_text(build_signature, encoding="utf-8")
         return None
 
-    def _prepare_build_sources(self):
-        build_dir = SOLVER_BIN_DIR / "cpp_solver_build"
-        src_dir = build_dir / "src"
-        include_dir = build_dir / "include"
+    def _solver_sources(self):
+        return sorted((SOLVER_DIR / "src").glob("*.cpp"))
 
-        if build_dir.exists():
-            shutil.rmtree(build_dir)
-
-        shutil.copytree(ASTAR_DIR / "src", src_dir)
-        shutil.copytree(ASTAR_DIR / "include", include_dir)
-
-        distance_cpp = src_dir / "distance.cpp"
-        text = distance_cpp.read_text(encoding="utf-8")
-        text = text.replace(
-            "auto [curr_p, dist] = q.front();",
-            "int curr_p = q.front().first;\n        int dist = q.front().second;",
-        )
-        text = text.replace("q.push({start_p, 0});", "q.push(std::make_pair(start_p, 0));")
-        text = text.replace("q.push({next_p, dist + 1});", "q.push(std::make_pair(next_p, dist + 1));")
-        distance_cpp.write_text(text, encoding="utf-8")
-
-        return build_dir
+    def _build_signature(self, sources):
+        digest = hashlib.sha256(BUILD_VERSION.encode("utf-8"))
+        for path in [*sources, *sorted((SOLVER_DIR / "include").glob("*.h"))]:
+            digest.update(path.name.encode("utf-8"))
+            digest.update(path.read_bytes())
+        for flag in BUILD_FLAGS:
+            digest.update(flag.encode("utf-8"))
+        return digest.hexdigest()
 
     def _grid_to_solver_input(self, grid):
         rows = len(grid)

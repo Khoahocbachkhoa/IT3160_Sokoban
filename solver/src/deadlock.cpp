@@ -30,7 +30,7 @@ void DeadlockDetector::computeSimpleDeadlocks(const Board& board) {
 void DeadlockDetector::computeDeadSquares(const Board &board) {
     int n = board.getSize();
 
-    std::vector reachable(n, false);
+    std::vector<bool> reachable(n, false);
     std::queue<int> q;
 
     for (int goal : board.goals) {

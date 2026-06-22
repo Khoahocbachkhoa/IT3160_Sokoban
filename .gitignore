@@ -1,1 +1,2 @@
-./A_star/sokoban
+sokoban_gui/bin/cpp_solver.build
+sokoban_gui/bin/cpp_solver.new.exe
