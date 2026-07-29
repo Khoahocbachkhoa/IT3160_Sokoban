@@ -87,12 +87,6 @@ Nếu không truyền đối số, solver mặc định chạy A*.
 
 ## Định dạng level
 
-Solver C++ yêu cầu dòng đầu chứa:
-
-```text
-rows cols
-```
-
 Ký hiệu Sokoban:
 
 ```text
@@ -107,11 +101,3 @@ $  thùng
 
 Một level hợp lệ cần đúng một người chơi và thông thường có số thùng bằng số
 goal. Bạn có thể tự tạo level theo ý mình và thử nghiệm
-
-## Chạy chương trình
-
-Điều hướng tới thư mục solver, dùng make để biên dịch mã nguồn thu được file nhị phân
-
-Điều hướng file nhị phân tới /sokoban-gui/bin/ để chương trình GUI có thể tìm đc file thực thi và chạy chương trình
-
-Để hiển thị GUI, chạy: python /sokoban-gui/main.py
