@@ -290,7 +290,6 @@ SolveResult solveAStar(const Board& board, const State& start_state, long long t
     return result;
 }
 
-// keep old name for compatibility
 SolveResult solveSystem(const Board& board, const State& start_state, long long time_limit_ms) {
     return solveAStar(board, start_state, time_limit_ms);
 }

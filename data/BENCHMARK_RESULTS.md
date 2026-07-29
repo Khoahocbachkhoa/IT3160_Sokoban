@@ -1,8 +1,4 @@
-# Kết quả benchmark solver
-
-## Nhóm cả A*, BFS và UCS đều giải được
-
-Kết quả tham khảo trên máy phát triển:
+## Kết quả benchmark
 
 | Level | Thuật toán | Trạng thái | Thời gian | Tổng step | Push |
 |---|---|---:|---:|---:|---:|
@@ -22,14 +18,3 @@ Kết quả tham khảo trên máy phát triển:
 | 12 | BFS | Solved | ~3.60 s | 106 | 32 |
 | 12 | UCS | Solved | ~4.25 s | 106 | 32 |
 | 12 | DFS | Solved | ~4.61 s | 1372 | 244 |
-
-A*, BFS và UCS đều tối ưu tổng step nên cho cùng độ dài lời giải. A* tốt hơn
-ở tốc độ tìm ra chính lời giải tối ưu đó: nhanh hơn khoảng 14–100 lần trên
-nhóm map này. DFS không đảm bảo tối ưu nên có thể trả về lời giải rất dài.
-
-## Nhóm map khó
-
-Ở nhóm này A* vẫn trả lời trong vài giây, trong khi BFS/UCS thường vượt cửa
-sổ benchmark do số trạng thái theo từng bước tăng quá lớn.
-
-Thời gian cụ thể có thể thay đổi theo CPU và trạng thái máy.

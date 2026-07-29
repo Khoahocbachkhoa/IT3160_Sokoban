@@ -111,7 +111,6 @@ bool DeadlockDetector::isCornerDeadlock(const Board& board, int p) const {
            (left_blocked && up_blocked);
 }
 
-// ! Edge deadlock : lỗi thời và bị thay bởi dead square deadlock
 bool DeadlockDetector::isEdgeDeadlock(const Board& board, int p) const {
     if (board.isGoal(p)) {
         return false;
