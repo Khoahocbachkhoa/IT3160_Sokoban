@@ -1,24 +1,19 @@
 # IT3160 Sokoban
 
-Project gồm chương trình tự động giải Sokoban với 4 thuật toán sử dụng: DFS, BFS, UCS và A*.
-
-- **A*** là solver được tối ưu riêng cho Sokoban, dùng heuristic, phát hiện
-  deadlock và tìm kiếm theo các lần đẩy hợp lệ.
-- **BFS, DFS và UCS** triển khai thuật toán tìm kiếm cổ điển, không dùng heuristic hoặc tối ưu chuyên biệt
-  Sokoban.
+Xây dựng AI chơi Sokoban
 
 ## Cấu trúc project
 
 ```text
 IT3160_Sokoban/
 |-- solver/
-|   |-- include/                 # Khai báo thư viện
-|   |-- src/                     # Mã nguồn C++
+|   |-- include/                 
+|   |-- src/                    
 |   |-- Makefile
 |-- sokoban_gui/
-|   |-- assets/                  # Ảnh và font
-|   |-- bin/                     # Solver do GUI tự build
-|   |-- src/                     # Game, renderer, level loader, gui
+|   |-- assets/              
+|   |-- bin/                   
+|   |-- src/       
 |   |-- config.py
 |   |-- main.py
 |-- data/
@@ -33,26 +28,19 @@ IT3160_Sokoban/
 
 - Python 3
 - Pygame
-- `g++` có trong `PATH`
+- g++
 
 Cài Pygame:
 
-```powershell
-python -m pip install pygame
 ```
-
-Kiểm tra compiler:
-
-```powershell
-g++ --version
+python -m pip install pygame
 ```
 
 ## Chạy GUI
 
-Từ thư mục `IT3160_Sokoban`:
 
-```powershell
-python sokoban_gui\main.py
+```
+python gui\main.py
 ```
 
 Điều khiển:
@@ -65,29 +53,28 @@ python sokoban_gui\main.py
 - `RETRY`: tải lại level;
 - `NEXT`: chuyển level.
 
-## Build và chạy solver trực tiếp
+## Chạy CLI
 
-Từ thư mục `solver`:
+Từ thư mục `engine`:
 
-```powershell
-g++ -std=c++14 -O3 -Wall -Wextra -static-libgcc -static-libstdc++ `
-    -Iinclude src\*.cpp -o sokoban.exe
+```
+make
 ```
 
-Chạy một thuật toán:
+Tiếp theo, chạy chương trình với tùy chọn thuật toán và một level:
 
 ```powershell
-Get-Content ..\data\level1.txt | .\sokoban.exe astar
-Get-Content ..\data\level1.txt | .\sokoban.exe bfs
-Get-Content ..\data\level1.txt | .\sokoban.exe dfs
-Get-Content ..\data\level1.txt | .\sokoban.exe ucs
+cat ../data/level.txt | sokoban astar
+cat ../data/level.txt | sokoban bfs
+cat ../data/level.txt | sokoban dfs
+cat ../data/level.txt | sokoban ucs
 ```
 
 Nếu không truyền đối số, solver mặc định chạy A*.
 
 ## Định dạng level
 
-Ký hiệu Sokoban:
+Ký hiệu :
 
 ```text
 #  tường
