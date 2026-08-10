@@ -64,10 +64,10 @@ make
 Tiếp theo, chạy chương trình với tùy chọn thuật toán và một level:
 
 ```powershell
-cat ../data/level.txt | sokoban astar
-cat ../data/level.txt | sokoban bfs
-cat ../data/level.txt | sokoban dfs
-cat ../data/level.txt | sokoban ucs
+cat ../data/level.txt | ./sokoban astar
+cat ../data/level.txt | ./sokoban bfs
+cat ../data/level.txt | ./sokoban dfs
+cat ../data/level.txt | ./sokoban ucs
 ```
 
 Nếu không truyền đối số, solver mặc định chạy A*.
