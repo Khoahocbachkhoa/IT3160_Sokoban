@@ -40,7 +40,7 @@ python -m pip install pygame
 
 
 ```
-python gui\main.py
+python gui/main.py
 ```
 
 Điều khiển:
