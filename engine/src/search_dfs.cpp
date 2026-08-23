@@ -5,7 +5,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include "../include/classic_search.h"
 #include "../include/search.h"
 
 struct ParentInfoDFS {

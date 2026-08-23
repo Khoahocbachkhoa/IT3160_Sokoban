@@ -2,28 +2,6 @@
 
 Xây dựng AI chơi Sokoban
 
-## Cấu trúc project
-
-```text
-IT3160_Sokoban/
-|-- solver/
-|   |-- include/                 
-|   |-- src/                    
-|   |-- Makefile
-|-- sokoban_gui/
-|   |-- assets/              
-|   |-- bin/                   
-|   |-- src/       
-|   |-- config.py
-|   |-- main.py
-|-- data/
-|   |-- level1.txt ... level12.txt
-|   |-- custom.txt
-|   |-- BENCHMARK_RESULTS.md
-|   |-- SOURCE_SOKOBAN_PYTHON_AI.md
-|-- README_SOKOBAN.md
-```
-
 ## Yêu cầu môi trường
 
 - Python 3
@@ -61,7 +39,7 @@ Từ thư mục `engine`:
 make
 ```
 
-Tiếp theo, chạy chương trình với tùy chọn thuật toán và một level:
+Chạy chương trình với tùy chọn thuật toán và một level:
 
 ```powershell
 cat ../data/level.txt | ./sokoban astar
