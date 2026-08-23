@@ -4,7 +4,6 @@
 #include <unordered_map>
 #include <vector>
 
-#include "../include/classic_search.h"
 #include "../include/search.h"
 
 struct SearchNodeUCS {
@@ -80,7 +79,7 @@ SolveResult solveUCS(const Board& board, const State& start_state, long long tim
             return result;
         }
 
-        for (const ClassicSuccessor& successor : generateClassicSuccessors(board, current.state)) {
+        for (const Successor& successor : generateSuccessors(board, current.state)) {
             int next_g = current.g + 1;
             auto known = best_g.find(successor.state);
 

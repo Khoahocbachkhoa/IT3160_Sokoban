@@ -5,7 +5,6 @@
 #include <unordered_set>
 #include <vector>
 
-#include "../include/classic_search.h"
 #include "../include/search.h"
 
 struct ParentInfoBFS {
@@ -59,7 +58,7 @@ SolveResult solveBFS(const Board& board, const State& start_state, long long tim
             return result;
         }
 
-        for (const ClassicSuccessor& successor : generateClassicSuccessors(board, current)) {
+        for (const Successor& successor : generateSuccessors(board, current)) {
             if (visited.insert(successor.state).second) {
                 parent_map[successor.state] = {current, successor.move};
                 frontier.push(successor.state);

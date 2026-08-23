@@ -58,7 +58,7 @@ SolveResult solveDFS(const Board& board, const State& start_state, long long tim
             return result;
         }
 
-        std::vector<ClassicSuccessor> successors = generateClassicSuccessors(board, current);
+        std::vector<Successor> successors = generateSuccessors(board, current);
         for (auto it = successors.rbegin(); it != successors.rend(); ++it) {
             if (visited.insert(it->state).second) {
                 parent_map[it->state] = {current, it->move};
